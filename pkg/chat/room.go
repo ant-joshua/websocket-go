@@ -1,7 +1,6 @@
 package chat
 
 import (
-	"fmt"
 	"log"
 	"sync"
 )
@@ -51,25 +50,20 @@ func (r *Room) RemoveMember(client *Client) {
 }
 
 // Broadcast sends a message to all members of the chat room
-func (r *Room) Broadcast(message SocketMessage) {
+func (r *Room) Broadcast(sender *Client, message SocketMessage) {
 	r.mutex.Lock()
 	defer r.mutex.Unlock()
-	var toRemove []*Client
+	//var toRemove []*Client
 	for member := range r.Members {
+		if member == sender {
+			continue // Skip the sender
+		}
 		select {
 		case member.send <- message:
 		default:
-			toRemove = append(toRemove, member)
-
-		}
-	}
-
-	for _, member := range toRemove {
-		fmt.Println("testing")
-		if !member.isClosed {
 			close(member.send)
-			member.isClosed = true
+			delete(r.Members, member)
+
 		}
-		delete(r.Members, member)
 	}
 }

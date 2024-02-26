@@ -82,6 +82,7 @@ func (h *Handler) HandleConnections(w http.ResponseWriter, r *http.Request) {
 	client := chat.NewClient(conn, chatRoom)
 	chatRoom.AddMember(client)
 
-	go client.Read()
 	go client.Write()
+	client.Read()
+
 }
