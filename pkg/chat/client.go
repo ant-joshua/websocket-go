@@ -26,7 +26,7 @@ func NewClient(conn *websocket.Conn, room *Room) *Client {
 func (c *Client) Read() {
 	log.Println("Starting to read messages from client")
 	defer func() {
-		//c.room.RemoveMember(c)
+		c.room.RemoveMember(c)
 		c.conn.Close()
 	}()
 
@@ -48,7 +48,7 @@ func (c *Client) Read() {
 		log.Printf("Received message from client: %s\n", message)
 
 		if err := json.Unmarshal(message, &msg); err == nil {
-			c.room.Broadcast(msg)
+			c.room.Broadcast(c, msg)
 		}
 
 	}
